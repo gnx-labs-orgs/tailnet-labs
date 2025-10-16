@@ -6,7 +6,7 @@ Main purposes labs orgs, getting started beta release.
 
  - Tailscale Instaled
  - Docker installed
- - open DevContainer standard & Spec-driven development for AI coding assistants
+ - Open DevContainer standard & Spec-driven development for AI coding assistants
 
 ### Pull binaries
 
