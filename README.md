@@ -8,6 +8,6 @@ Main purposes labs orgs, getting started beta release.
  - Docker installed
  - Open DevContainer standard & Spec-driven development for AI coding assistants
 
-### Pull binaries
+### Pull binaries and Runing services
 
-### Runing services
+docker compose up -d
