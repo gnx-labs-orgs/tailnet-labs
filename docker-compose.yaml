@@ -6,3 +6,16 @@ services:
       dockerfile: Dockerfile
       args:
         PLUGINS: "github.com/caddy-dns/cloudflare github.com/sablierapp/sablier/plugins/caddy"
+    environment:
+      - TAILSCALE_AUTHKEY=${TAILSCALE_AUTHKEY}
+      - TAILNET_NAME=${TAILNET_NAME}
+      - TAILSCALE_HOSTNAME=${TAILSCALE_HOSTNAME}
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+
+    volumes:
+      - ./tailscale-state:/tailscale
+      - ./config:/etc/caddy
+
+volumes:
+  tailscale-state:
+  config:
