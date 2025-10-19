@@ -1,11 +1,8 @@
 services:
   tailnet:
-     image: sudosu404/tailnet-caddy:latest
+    image: sudosu404/tailnet-caddy:latest
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        PLUGINS: "
-          github.com/caddy-dns/cloudflare
-          github.com/sablierapp/sablier/plugins/caddy
-          "
+        PLUGINS: "github.com/caddy-dns/cloudflare github.com/sablierapp/sablier/plugins/caddy"
