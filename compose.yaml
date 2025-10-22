@@ -1,6 +1,6 @@
 services:
   tailnet:
-    image: sudosu404/tailnet-caddy:latest
+    image: ghcr.io/sudosu404/tailnet-labs:latest
     build:
       context: .
       dockerfile: Dockerfile
@@ -10,7 +10,7 @@ services:
       - TAILSCALE_AUTHKEY=${TAILSCALE_AUTHKEY}
       - TAILNET_NAME=${TAILNET_NAME}
       - TAILSCALE_HOSTNAME=${TAILSCALE_HOSTNAME}
-      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+      #- CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
 
     volumes:
       - ./tailscale-state:/tailscale
