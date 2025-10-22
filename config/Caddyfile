@@ -1,10 +1,42 @@
 (cloudflare) {
-    tls {
-        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+  tls {
+    dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+  }
+}
+
+# Proxmox infra {env.CLOUDFLARE_DOMAIN}
+pve-tty.{env.CLOUDFLARE_DOMAIN}{
+  reverse_proxy https://{env.PVE_PROXY} {
+    transport http {
+      tls_insecure_skip_verify
     }
+  }
+  import cloudflare
 }
-{env.TAILNET_NAME} {
-    import cloudflare
-    # Whatever you want, e.g.
-    reverse_proxy {env.TAILSCALE_HOSTNAME}.{env.TAILNET_NAME}:80
+
+tailnet-labs.{env.CLOUDFLARE_DOMAIN}{
+  reverse_proxy https://{env.TAILNETLABS_PROXY} {
+    transport http {
+      tls_insecure_skip_verify
+    }
+  }
+  import cloudflare
 }
+
+## audiobookshelf
+#audiobooks.{TAILNET_NAME} {
+#  reverse_proxy http://{env.AUDIOBOOKS_PROXY}
+#  import cloudflare
+#}
+#
+## jellyfin
+#jellyfin.{TAILNET_NAME} {
+#  reverse_proxy http://{env.JELLIFYN_PROXY}
+#  import cloudflare
+#}
+
+## pve
+#pve.{TAILNET_NAME} {
+#  reverse_proxy http://{env.PVE_PROXY}
+#  import cloudflare
+#}

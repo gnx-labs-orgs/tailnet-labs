@@ -1,8 +1,4 @@
-# syntax=docker/dockerfile:1
-
-################################################################################
 # Stage 1: Builder — build custom Caddy with optional plugins
-################################################################################
 FROM debian:trixie AS builder
 
 # Install build tools and Go
@@ -48,9 +44,7 @@ RUN if [ -n "$PLUGINS" ]; then \
       xcaddy build; \
     fi
 
-################################################################################
 # Stage 2: Final Runtime — Debian Trixie with Caddy + Tailscale
-################################################################################
 FROM debian:trixie-slim AS runtime
 
 RUN apt-get update && \
@@ -63,7 +57,7 @@ RUN apt-get update && \
       dnsutils && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Tailscale via their apt repository (Debian method)
+### Install Tailscale via their apt repository
 RUN curl -fsSL https://pkgs.tailscale.com/stable/debian/trixie.noarmor.gpg | tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null && \
     curl -fsSL https://pkgs.tailscale.com/stable/debian/trixie.tailscale-keyring.list | tee /etc/apt/sources.list.d/tailscale.list && \
     apt-get update && \
@@ -72,8 +66,15 @@ RUN curl -fsSL https://pkgs.tailscale.com/stable/debian/trixie.noarmor.gpg | tee
 
 COPY --from=builder /src/caddy /usr/bin/caddy
 COPY init.sh /init.sh
+
+RUN cp config/caddy.service /etc/systemd/system/caddy.service
+RUN systemctl daemon-reload
+RUN useradd caddy
+RUN mkdir /home/caddy
+RUN chown -R caddy:users /home/caddy
+
 RUN chmod +x /init.sh
 
-VOLUME ["/etc/caddy", "/tailscale"]
+VOLUME ["/etc/caddy", "/tailnet"]
 ENTRYPOINT ["/init.sh"]
 CMD ["caddy","version"]

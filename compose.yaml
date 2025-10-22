@@ -1,21 +1,22 @@
 services:
-  tailnet:
-    image: ghcr.io/sudosu404/tailnet-labs:latest
+  tailnet-labs:
+    image: tailnet-labs:latest
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        PLUGINS: "github.com/caddy-dns/cloudflare github.com/sablierapp/sablier/plugins/caddy"
+        PLUGINS: "github.com/caddy-dns/cloudflare"
+        XCADDY_DEBUG: 1
+    privileged: true
     environment:
       - TAILSCALE_AUTHKEY=${TAILSCALE_AUTHKEY}
       - TAILNET_NAME=${TAILNET_NAME}
       - TAILSCALE_HOSTNAME=${TAILSCALE_HOSTNAME}
-      #- CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
-
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
     volumes:
-      - ./tailscale-state:/tailscale
+      - ./tailnet-state:/tailnet
       - ./config:/etc/caddy
-
+      - /var/run/docker.sock:/var/run/docker.sock
 volumes:
-  tailscale-state:
+  tailnet-state:
   config:
