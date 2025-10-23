@@ -64,16 +64,19 @@ COPY --from=builder /src/caddy /usr/bin/caddy
 
 # create caddy user/group and directories
 RUN groupadd -r caddy && useradd -r -g caddy -d /var/lib/caddy -s /sbin/nologin caddy && \
-    mkdir -p /var/lib/caddy /etc/caddy /tailnet /var/run/tailnet && \
-    chown -R caddy:caddy /var/lib/caddy /etc/caddy /tailnet /var/run/tailnet
+    mkdir -p /var/lib/caddy /etc/caddy /var/run/tailscale /var/run/tailscale && \
+    chown -R caddy:caddy /var/lib/caddy /etc/caddy /var/run/tailscale /var/run/tailscale
 
 # give caddy the ability to bind low ports without running as root
 RUN setcap 'cap_net_bind_service=+ep' /usr/bin/caddy || true
+COPY config/Caddyfile /etc/caddy/Caddyfile
+COPY config/caddy.service /etc/systemd/system/caddy.service
+
 
 # copy init script
 COPY init.sh /init.sh
 RUN chmod +x /init.sh
 
-VOLUME ["/etc/caddy", "/tailnet"]
+VOLUME ["/etc/caddy", "/var/run/tailscale"]
 ENTRYPOINT ["/init.sh"]
 CMD ["caddy","version"]

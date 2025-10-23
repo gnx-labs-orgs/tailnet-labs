@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   tailnet-labs:
     build:
@@ -7,11 +5,15 @@ services:
       dockerfile: Dockerfile
       args:
         PLUGINS: "github.com/caddy-dns/cloudflare"
+        ALL_PROXY: ${ALL_PROXY}
+        HTTP_PROXY: ${HTTP_PROXY}
+        http_proxy: ${http_proxy}
     image: tailnet-labs:latest
     container_name: tailnet-labs
+    privileged: true               # gives access to /dev/net/tun
     cap_add:
-    - NET_ADMIN
-    - NET_BIND_SERVICE
+      - NET_BIND_SERVICE
+      - NET_ADMIN
     devices:
       - /dev/net/tun:/dev/net/tun
     environment:
@@ -19,14 +21,14 @@ services:
       TAILSCALE_HOSTNAME: ${TAILSCALE_HOSTNAME:-tailnet-labs}
       TAILSCALE_AUTHKEY_FILE: /run/secrets/tailscale_authkey
       CLOUDFLARE_API_TOKEN_FILE: /run/secrets/cloudflare_api_token
+      TAILSCALE_STATE: /var/lib/tailscale
     secrets:
       - tailscale_authkey
       - cloudflare_api_token
     volumes:
-      - state:/tailnet
+      - state:/var/lib/tailscale
       - config:/etc/caddy
       - /var/run/docker.sock:/var/run/docker.sock
-    entrypoint: ["/init.sh"]
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "tailscale", "status"]
