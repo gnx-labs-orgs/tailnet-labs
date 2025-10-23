@@ -1,0 +1,8 @@
+caddy                 = testdomain.tailnet.gnx
+tailnet.reverse_proxy   = something
+tailnet.reverse_proxy_1 = /api/* external-api
+----------
+testdomain.tailnet.gnx {
+	reverse_proxy /api/* external-api
+	reverse_proxy something
+}

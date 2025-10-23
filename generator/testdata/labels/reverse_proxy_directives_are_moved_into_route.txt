@@ -1,0 +1,14 @@
+caddy                                  = service.testdomain.tailnet.gnx
+tailnet.route                            = /path/*
+tailnet.route.0_uri                      = strip_prefix /path
+tailnet.route.1_reverse_proxy            = {{upstreams}}
+tailnet.route.1_reverse_proxy.health_uri = /health
+----------
+service.testdomain.tailnet.gnx {
+	route /path/* {
+		uri strip_prefix /path
+		reverse_proxy target {
+			health_uri /health
+		}
+	}
+}

@@ -1,0 +1,44 @@
+version: '3.7'
+
+services:
+
+  tailnet:
+    image: tailnet:local
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - caddy
+    environment:
+      - CADDY_DOCKER_PROCESS_CADDYFILE=false
+    volumes:
+      - source: "${DOCKER_SOCKET_PATH}"
+        target: "${DOCKER_SOCKET_PATH}"
+        type: ${DOCKER_SOCKET_TYPE}
+
+  # Proxy to service
+  whoami0:
+    image: traefik/whoami
+    networks:
+      - caddy
+    deploy:
+      labels:
+        tailnet: whoami0.tailnet.gnx
+        tailnet.reverse_proxy: "{{upstreams 80}}"
+        tailnet.tls: "invalid_value"
+
+  # Proxy to service
+  whoami1:
+    image: traefik/whoami
+    networks:
+      - caddy
+    deploy:
+      labels:
+        tailnet: whoami1.tailnet.gnx
+        tailnet.reverse_proxy: "{{upstreams 80}}"
+        tailnet.tls: "internal"
+
+networks:
+  tailnet:
+    name: caddy_test
+    external: true

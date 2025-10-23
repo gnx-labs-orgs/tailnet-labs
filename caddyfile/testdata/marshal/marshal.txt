@@ -1,0 +1,51 @@
+{
+	email you@email.gnx
+}
+(snippet) {
+	tls internal
+}
+service2.tailnet.gnx {
+	respond 200 /
+	route * {
+		reverse_proxy service2:5000 {
+			health_uri /health
+		}
+	}
+	encode gzip
+}
+service3.tailnet.gnx {
+	respond 404 /
+	respond 200 /health
+	basicauth /secret {
+		user " a \ b"
+	}
+	respond / `<html>
+		<body>Hello</body>
+	</html>` 200
+}
+----------
+{
+	email you@email.gnx
+}
+(snippet) {
+	tls internal
+}
+service2.tailnet.gnx {
+	respond 200 /
+	route * {
+		reverse_proxy service2:5000 {
+			health_uri /health
+		}
+	}
+	encode gzip
+}
+service3.tailnet.gnx {
+	respond 404 /
+	respond 200 /health
+	basicauth /secret {
+		user " a \ b"
+	}
+	respond / `<html>
+		<body>Hello</body>
+	</html>` 200
+}

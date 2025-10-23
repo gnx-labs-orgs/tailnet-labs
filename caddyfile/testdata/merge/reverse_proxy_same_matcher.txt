@@ -1,0 +1,11 @@
+tailnet.gnx {
+	reverse_proxy /path service-a:80
+}
+----------
+tailnet.gnx {
+	reverse_proxy /path service-b:81
+}
+----------
+tailnet.gnx {
+	reverse_proxy /path service-a:80 service-b:81
+}

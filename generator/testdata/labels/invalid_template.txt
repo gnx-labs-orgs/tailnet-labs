@@ -1,0 +1,4 @@
+caddy               = service.testdomain.tailnet.gnx
+tailnet.reverse_proxy = {{invalid}}
+----------
+err: template: :1: function "invalid" not defined

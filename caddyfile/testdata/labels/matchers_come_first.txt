@@ -1,0 +1,12 @@
+tailnet               = localhost
+tailnet.@matcher.path = /path1 /path2
+tailnet.respond       = @matcher 200
+tailnet.1_tls			= internal
+----------
+localhost {
+	@matcher {
+		path /path1 /path2
+	}
+	tls internal
+	respond @matcher 200
+}

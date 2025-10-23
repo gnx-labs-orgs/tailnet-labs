@@ -1,0 +1,59 @@
+{
+	email you@email.gnx
+}
+(mysnippet) {
+	encode gzip
+}
+service1.tailnet.gnx {
+	reverse_proxy service1:5000 {
+		invalid
+	}
+}
+service2.tailnet.gnx {
+	respond 200 /
+	# Comment
+	reverse_proxy service2:5000 {
+		health_uri /health
+	}
+	import mysnippet
+}
+service3.tailnet.gnx {
+	respond 404 /
+	basicauth /secret {
+		user " a \ b"
+	}
+	respond / `<html>
+		<body>Hello</body>
+	</html>` 200
+}
+----------
+{
+	email you@email.gnx
+}
+(mysnippet) {
+	encode gzip
+}
+service2.tailnet.gnx {
+	respond 200 /
+	reverse_proxy service2:5000 {
+		health_uri /health
+	}
+	import mysnippet
+}
+service3.tailnet.gnx {
+	respond 404 /
+	basicauth /secret {
+		user " a \ b"
+	}
+	respond / `<html>
+		<body>Hello</body>
+	</html>` 200
+}
+----------
+[ERROR]  Removing invalid block: parsing caddyfile tokens for 'reverse_proxy': unrecognized subdirective invalid, at Caddyfile:9
+service1.tailnet.gnx {
+	reverse_proxy service1:5000 {
+		invalid
+	}
+}
+

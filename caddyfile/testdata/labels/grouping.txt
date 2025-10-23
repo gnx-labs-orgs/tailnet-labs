@@ -1,0 +1,16 @@
+tailnet               = localhost
+tailnet.group.a       = value-a
+tailnet.group.b       = value-b
+tailnet.group.group.a = value-a
+tailnet.group.group.b = value-b
+----------
+localhost {
+	group {
+		a value-a
+		b value-b
+		group {
+			a value-a
+			b value-b
+		}
+	}
+}

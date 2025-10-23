@@ -1,0 +1,104 @@
+version: "3.7"
+
+# used for specific settings you have outside of your docker config
+# ex: proxies to external servers, storage configuration...
+# remove this block entirely if not needed (Only used for Docker Swarm)
+configs:
+  caddy-basic-content:
+    file: ./Caddyfile
+    labels:
+      tailnet:
+
+services:
+  tailnet:
+    image: sudosu404/tailnet:ci-alpine
+    ports:
+      - 80:80
+      - 443:443/tcp
+      - 443:443/udp
+    networks:
+      - caddy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # this volume is needed to keep the certificates
+      # otherwise, new ones will be re-issued upon restart
+      - caddy_data:/data
+    deploy:
+      labels: # Global options
+        tailnet.email: you@email.gnx
+      placement:
+        constraints:
+          - node.role == manager
+      replicas: 1
+      restart_policy:
+        condition: any
+      resources:
+        reservations:
+          cpus: "0.1"
+          memory: 200M
+
+  # Proxy to service
+  whoami0:
+    image: traefik/whoami
+    networks:
+      - caddy
+    deploy:
+      labels:
+        tailnet: whoami0.tailnet.gnx
+        tailnet.reverse_proxy: "{{upstreams 80}}"
+        tailnet.tls: "internal"
+
+  # Proxy to service that you want to expose to the outside world
+  whoami1:
+    image: traefik/whoami
+    networks:
+      - caddy
+    deploy:
+      labels:
+        tailnet: whoami1.tailnet.gnx
+        tailnet.reverse_proxy: "{{upstreams 80}}"
+        # remove the following line when you have verified your setup
+        # Otherwise you risk being rate limited by let's encrypt
+        #tailnet.tls.ca: https://acme-staging-v02.api.letsencrypt.org/directory
+
+  # Proxy to container
+  whoami2:
+    image: traefik/whoami
+    networks:
+      - caddy
+    labels:
+      tailnet: whoami2.tailnet.gnx
+      tailnet.reverse_proxy: "{{upstreams 80}}"
+      tailnet.tls: "internal"
+
+  # Proxy to container
+  whoami3:
+    image: traefik/whoami
+    networks:
+      - caddy
+    labels:
+      tailnet: whoami3.tailnet.gnx
+      tailnet.reverse_proxy: "{{upstreams 80}}"
+      tailnet.tls: "internal"
+
+  # Proxy with matches and route
+  echo_0:
+    image: traefik/whoami
+    networks:
+      - caddy
+    deploy:
+      labels:
+        tailnet: echo0.tailnet.gnx
+        tailnet.@match.path: "/sourcepath /sourcepath/*"
+        tailnet.route: "@match"
+        tailnet.route.0_uri: "strip_prefix /sourcepath"
+        tailnet.route.1_rewrite: "* /targetpath{path}"
+        tailnet.route.2_reverse_proxy: "{{upstreams 80}}"
+        tailnet.tls: "internal"
+
+networks:
+  tailnet:
+    driver: overlay
+
+volumes:
+  caddy_data: {}

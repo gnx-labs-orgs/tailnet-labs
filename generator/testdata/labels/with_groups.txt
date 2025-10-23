@@ -1,0 +1,8 @@
+caddy               = service.testdomain.tailnet.gnx
+tailnet.reverse_proxy = {{upstreams https 5000}}
+tailnet.rewrite       = * /api{path}
+----------
+service.testdomain.tailnet.gnx {
+	reverse_proxy https://target:5000
+	rewrite * /api{path}
+}

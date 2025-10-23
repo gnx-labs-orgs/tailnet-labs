@@ -1,0 +1,6 @@
+caddy               = service.testdomain.tailnet.gnx
+tailnet.reverse_proxy = {{upstreams h2c 5000}}
+----------
+service.testdomain.tailnet.gnx {
+	reverse_proxy h2c://target:5000
+}

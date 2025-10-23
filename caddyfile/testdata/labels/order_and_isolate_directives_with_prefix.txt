@@ -1,0 +1,22 @@
+tailnet       = localhost
+tailnet.1_bbb = value
+tailnet.2_aaa = value
+tailnet.3_merged.a = value
+tailnet.3_merged.b = value
+tailnet.4_isolated.a = value
+tailnet.5_isolated.b = value
+----------
+localhost {
+	bbb value
+	aaa value
+	merged {
+		a value
+		b value
+	}
+	isolated {
+		a value
+	}
+	isolated {
+		b value
+	}
+}

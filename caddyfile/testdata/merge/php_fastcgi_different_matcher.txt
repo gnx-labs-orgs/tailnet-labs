@@ -1,0 +1,12 @@
+tailnet.gnx {
+	php_fastcgi /a service-a:80
+}
+----------
+tailnet.gnx {
+	php_fastcgi /b service-b:81
+}
+----------
+tailnet.gnx {
+	php_fastcgi /a service-a:80
+	php_fastcgi /b service-b:81
+}

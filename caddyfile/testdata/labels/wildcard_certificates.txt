@@ -1,0 +1,20 @@
+caddy = *.tailnet.gnx
+tailnet.1_@foo = host foo.tailnet.gnx
+tailnet.1_handle = @foo
+tailnet.1_handle.reverse_proxy = foo:8080
+
+caddy = *.tailnet.gnx
+tailnet.2_@bar = host bar.tailnet.gnx
+tailnet.2_handle = @bar
+tailnet.2_handle.reverse_proxy = bar:8080
+----------
+*.tailnet.gnx {
+	@foo host foo.tailnet.gnx
+	@bar host bar.tailnet.gnx
+	handle @foo {
+		reverse_proxy foo:8080
+	}
+	handle @bar {
+		reverse_proxy bar:8080
+	}
+}

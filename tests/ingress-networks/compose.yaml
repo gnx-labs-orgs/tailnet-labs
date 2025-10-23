@@ -1,0 +1,86 @@
+version: '3.7'
+
+services:
+
+  caddy_server:
+    image: tailnet:local
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - controller
+      - ingress_0
+      - ingress_1
+      - ingress_2
+    environment:
+      - CADDY_DOCKER_MODE=server
+      - CADDY_CONTROLLER_NETWORK=10.200.200.0/24
+    deploy:
+      replicas: 3
+      labels:
+        caddy_controlled_server:
+
+  caddy_controller:
+    image: tailnet:local
+    networks:
+      - controller
+    environment:
+      - CADDY_DOCKER_MODE=controller
+      - CADDY_CONTROLLER_NETWORK=10.200.200.0/24
+      - CADDY_INGRESS_NETWORKS=ingress_0,ingress_1
+    volumes:
+      - source: "${DOCKER_SOCKET_PATH}"
+        target: "${DOCKER_SOCKET_PATH}"
+        type: ${DOCKER_SOCKET_TYPE}
+
+  # Proxy to service
+  whoami0:
+    image: traefik/whoami
+    networks:
+      - ingress_0
+    deploy:
+      labels:
+        tailnet: whoami0.tailnet.gnx
+        tailnet.reverse_proxy: "{{upstreams 80}}"
+        tailnet.tls: "internal"
+
+  # Proxy to service
+  whoami1:
+    image: traefik/whoami
+    networks:
+      - ingress_1
+    deploy:
+      labels:
+        tailnet: whoami1.tailnet.gnx
+        tailnet.reverse_proxy: "{{upstreams 80}}"
+        tailnet.tls: "internal"
+
+  # Proxy to service
+  whoami2:
+    image: traefik/whoami
+    networks:
+      - internal
+      - ingress_2
+    deploy:
+      labels:
+        tailnet: whoami2.tailnet.gnx
+        tailnet.reverse_proxy: "{{upstreams 80}}"
+        tailnet.tls: "internal"
+        caddy_ingress_network: ingress_2
+
+networks:
+  ingress_0:
+    name: ingress_0
+  ingress_1:
+    name: ingress_1
+  ingress_2:
+    name: ingress_2
+  internal:
+    name: internal
+    internal: true
+  controller:
+    driver: overlay
+    ipam:
+      driver: default
+      config:
+        - subnet: "10.200.200.0/24"

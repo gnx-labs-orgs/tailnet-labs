@@ -1,0 +1,20 @@
+version: '3.7'
+
+services:
+
+  tailnet:
+    image: tailnet:local
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - caddy
+    volumes:
+      - source: "${DOCKER_SOCKET_PATH}"
+        target: "${DOCKER_SOCKET_PATH}"
+        type: ${DOCKER_SOCKET_TYPE}
+
+networks:
+  tailnet:
+    name: caddy_test
+    external: true

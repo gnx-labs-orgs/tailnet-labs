@@ -1,0 +1,20 @@
+tailnet.0_with_spaces    = "a b c d"
+tailnet.1_without_spaces = "abcd"
+tailnet.2_multiple       = "a b c d" "abcd"
+tailnet.3_back           = `{"some":"json"}`
+tailnet.4_escaped        = "a\"b"
+tailnet.5_unbalanced     = "a
+tailnet.6_unbalanced     = a"
+tailnet.7_multiline      = `aNEW_LINEb` "cd"
+----------
+{
+	with_spaces "a b c d"
+	without_spaces abcd
+	multiple "a b c d" abcd
+	back `{"some":"json"}`
+	escaped `a"b`
+	unbalanced a
+	unbalanced `a"`
+	multiline `a
+b` cd
+}

@@ -1,0 +1,6 @@
+caddy               = service.testdomain.tailnet.gnx
+tailnet.reverse_proxy = {{upstreams}}
+----------
+service.testdomain.tailnet.gnx {
+	reverse_proxy target
+}
