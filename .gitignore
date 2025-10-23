@@ -32,4 +32,6 @@ go.work.sum
 # .vscode/
 
 tailscale_state
-tailnet-state
+state
+TAILSCALE_AUTHKEY_FILE
+CLOUDFLARE_API_TOKEN_FILE

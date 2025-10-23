@@ -1,42 +1,50 @@
 (cloudflare) {
-  tls {
-    dns cloudflare {env.CLOUDFLARE_API_TOKEN}
-  }
-}
-
-# Proxmox infra {env.CLOUDFLARE_DOMAIN}
-pve-tty.{env.CLOUDFLARE_DOMAIN}{
-  reverse_proxy https://{env.PVE_PROXY} {
-    transport http {
-      tls_insecure_skip_verify
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
     }
-  }
-  import cloudflare
 }
 
-tailnet-labs.{env.CLOUDFLARE_DOMAIN}{
-  reverse_proxy https://{env.TAILNETLABS_PROXY} {
-    transport http {
-      tls_insecure_skip_verify
+# --------------------------------
+# Proxmox infra
+# --------------------------------
+pve-tty.{env.CLOUDFLARE_ZONE} {
+    reverse_proxy https://{env.PVE_PROXY} {
+        transport http {
+            tls_insecure_skip_verify
+        }
     }
-  }
-  import cloudflare
+    import cloudflare
 }
 
-## audiobookshelf
-#audiobooks.{TAILNET_NAME} {
-#  reverse_proxy http://{env.AUDIOBOOKS_PROXY}
-#  import cloudflare
-#}
-#
-## jellyfin
-#jellyfin.{TAILNET_NAME} {
-#  reverse_proxy http://{env.JELLIFYN_PROXY}
-#  import cloudflare
-#}
+pve.{env.TAILNET_NAME} {
+    reverse_proxy http://{env.PVE_PROXY}
+    import cloudflare
+}
 
-## pve
-#pve.{TAILNET_NAME} {
-#  reverse_proxy http://{env.PVE_PROXY}
-#  import cloudflare
-#}
+# --------------------------------
+# Tailnet Labs service
+# --------------------------------
+tailnet-labs.{env.CLOUDFLARE_ZONE} {
+    reverse_proxy https://{env.TAILNETLABS_PROXY} {
+        transport http {
+            tls_insecure_skip_verify
+        }
+    }
+    import cloudflare
+}
+
+# --------------------------------
+# Audiobookshelf
+# --------------------------------
+audiobooks.{env.TAILNET_NAME} {
+    reverse_proxy http://{env.AUDIOBOOKS_PROXY}
+    import cloudflare
+}
+
+# --------------------------------
+# Jellyfin
+# --------------------------------
+jellyfin.{env.TAILNET_NAME} {
+    reverse_proxy http://{env.JELLYFIN_PROXY}
+    import cloudflare
+}

@@ -1,22 +1,79 @@
+version: "3.9"
+
 services:
   tailnet-labs:
-    image: tailnet-labs:latest
     build:
       context: .
       dockerfile: Dockerfile
       args:
         PLUGINS: "github.com/caddy-dns/cloudflare"
-        XCADDY_DEBUG: 1
-    privileged: true
+    image: tailnet-labs:latest
+    container_name: tailnet-labs
+    cap_add:
+    - NET_ADMIN
+    - NET_BIND_SERVICE
+    devices:
+      - /dev/net/tun:/dev/net/tun
     environment:
-      - TAILSCALE_AUTHKEY=${TAILSCALE_AUTHKEY}
-      - TAILNET_NAME=${TAILNET_NAME}
-      - TAILSCALE_HOSTNAME=${TAILSCALE_HOSTNAME}
-      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+      TAILNET_NAME: ${TAILNET_NAME:-tailnet.gnx}
+      TAILSCALE_HOSTNAME: ${TAILSCALE_HOSTNAME:-tailnet-labs}
+      TAILSCALE_AUTHKEY_FILE: /run/secrets/tailscale_authkey
+      CLOUDFLARE_API_TOKEN_FILE: /run/secrets/cloudflare_api_token
+    secrets:
+      - tailscale_authkey
+      - cloudflare_api_token
     volumes:
-      - ./tailnet-state:/tailnet
-      - ./config:/etc/caddy
+      - state:/tailnet
+      - config:/etc/caddy
       - /var/run/docker.sock:/var/run/docker.sock
+    entrypoint: ["/init.sh"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "tailscale", "status"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  jellyfin:
+    image: jellyfin/jellyfin
+    container_name: jellyfin
+    hostname: jellyfin
+    depends_on:
+      - tailnet-labs
+    volumes:
+      - ./state/mnt/data/appdata/jellyfin:/config
+      - ./state/mnt/data/media:/data:ro
+      - /dev/shm:/transcode
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=UTC
+      - JELLYFIN_PublishedServerUrl=jellyfin.${TAILNET_NAME:-tailnet.gnx}
+    ports:
+      - 2285:8096
+    restart: unless-stopped
+
+  abs:
+    image: advplyr/audiobookshelf
+    container_name: abs
+    hostname: abs
+    depends_on:
+      - tailnet-labs
+    volumes:
+      - ./state/mnt/data/media/audiobooks/library:/audiobooks:ro
+      - ./state/mnt/data/media/audiobooks/podcasts:/podcasts
+      - ./state/mnt/data/appdata/audiobookshelf/metadata:/metadata
+      - ./state/mnt/data/appdata/audiobookshelf/config:/config
+    ports:
+      - 2284:80
+    restart: unless-stopped
+
+secrets:
+  tailscale_authkey:
+    file: ./TAILSCALE_AUTHKEY_FILE
+  cloudflare_api_token:
+    file: ./CLOUDFLARE_API_TOKEN_FILE
+
 volumes:
-  tailnet-state:
+  state:
   config:
